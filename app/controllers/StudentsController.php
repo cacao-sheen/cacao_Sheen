@@ -1,6 +1,6 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
-
+require_once __DIR__ . '/../helpers/auth_helper.php';
 /**
  * Controller: StudentsController
  * 
@@ -12,66 +12,26 @@ class StudentsController extends Controller {
         parent::__construct();
         $this->call->library('pagination');
         $this->call->library('session'); 
-
     }
 
-    /*public function get_all(){
-       
-        $data['s'] = $this->StudentsModel->all();
-        $this->call->view('get_all', $data);
-    }*/
 
-   public function create() {
-       
-        if($this->form_validation->submitted()){
-             $first_name = $this->io->post('first_name');
-            $last_name = $this->io->post('last_name');
-            $email = $this->io->post('email');
-
-            $this->StudentsModel->create($first_name, $last_name, $email);
-
-        }
-       
-         $this->call->view('create');
-    }
-   function update($id) {
-        $student = $this->StudentsModel->find($id);
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'first_name' => $_POST['first_name'],
-                'last_name'  => $_POST['last_name'],
-                'email'      => $_POST['email']
-            ];
-            $this->StudentsModel->update($id, $data);
-            redirect('get_all');
-        }
-        $this->call->view('/update', ['student' => $student]);
-
-    }
-    function delete($id) {
-         $this->StudentsModel->delete($id);
-         redirect('get_all');
-    }
-
-     public function get_all($page = 1)
+  public function get_all($page = 1)
 {
     try {
-        // Load query parameters
         $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
         $allowed_per_page = [10, 25, 50, 100];
         if (!in_array($per_page, $allowed_per_page)) $per_page = 10;
 
-        // Total rows
-        $total_rows = $this->StudentsModel->count_all_records();
+        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 
-        // Ensure page is valid
+        // Total rows (search-aware)
+        $total_rows = $this->StudentsModel->count_filtered_records($keyword);
+
         $page = max(1, (int)$page);
-
-        // Calculate offset
         $offset = ($page - 1) * $per_page;
         $limit_clause = "LIMIT {$offset}, {$per_page}";
 
-        
+        // Pagination setup
         $pagination_data = $this->pagination->initialize(
             $total_rows,
             $per_page,
@@ -80,21 +40,266 @@ class StudentsController extends Controller {
             5
         );
 
-        $data['students'] = $this->StudentsModel->get_records_with_pagination($limit_clause);
+        // If searching, use searchStudents with LIMIT
+        if ($keyword !== '') {
+            $data['students'] = $this->StudentsModel->searchStudents($keyword, $limit_clause);
+        } else {
+            $data['students'] = $this->StudentsModel->get_records_with_pagination($limit_clause);
+        }
+
         $data['total_records'] = $total_rows;
         $data['pagination_data'] = $pagination_data;
         $data['pagination_links'] = $this->pagination->paginate();
+        $data['keyword'] = $keyword;
 
-       
-        $data['error'] = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : '';
-
-        
         $this->call->view('get_all', $data);
 
     } catch (Exception $e) {
-       
         $error_msg = urlencode($e->getMessage());
         redirect('get_all/1?error=' . $error_msg);
     }
 }
+
+
+  // Require login function (put this in a helper or base controller)
+function requireLogin() {
+    if (!isset($_SESSION['user_id'])) {
+        redirect('login'); // redirect to login page
+        exit;
+    }
+}
+
+public function create() {
+    requireLogin(); // 🔐 check authentication
+
+    if ($this->form_validation->submitted()) {
+        $errors = [];
+
+        // Validate required fields
+        $first_name = trim($this->io->post('first_name'));
+        $last_name  = trim($this->io->post('last_name'));
+        $emails     = trim($this->io->post('emails'));
+
+        if (empty($first_name)) $errors[] = "First name is required.";
+        if (empty($last_name))  $errors[] = "Last name is required.";
+        if (empty($emails) || !filter_var($emails, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "A valid email is required.";
+        }
+
+        $profile_pic = null;
+
+        // Handle profile picture upload
+        if (!empty($_FILES['profile_pic']['name'])) {
+            $upload_dir = __DIR__ . '/../../upload/students/';
+            if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+
+            $file_tmp  = $_FILES['profile_pic']['tmp_name'];
+            $file_name = time() . "_" . basename($_FILES['profile_pic']['name']);
+            $target    = $upload_dir . $file_name;
+
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!in_array($_FILES['profile_pic']['type'], $allowed_types)) {
+                $errors[] = "Only JPG, PNG, GIF files are allowed.";
+            } elseif (!move_uploaded_file($file_tmp, $target)) {
+                $errors[] = "❌ Failed to upload file.";
+            } else {
+                $profile_pic = $file_name;
+            }
+        }
+
+        // If validation fails → reload form with errors
+        if (!empty($errors)) {
+            $this->call->view('create', ['errors' => $errors]);
+            return;
+        }
+
+        // Save data into DB
+        $data = [
+            'first_name'  => $first_name,
+            'last_name'   => $last_name,
+            'emails'      => $emails,
+            'profile_pic' => $profile_pic
+        ];
+
+        $this->StudentsModel->insert($data);
+        redirect('get_all');
+    }
+
+    $this->call->view('create');
+}
+
+public function update($id) {
+    requireLogin(); // 🔐 check authentication
+    $student = $this->StudentsModel->find($id);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $errors = [];
+
+        // Validate fields
+        $first_name = trim($_POST['first_name']);
+        $last_name  = trim($_POST['last_name']);
+        $emails     = trim($_POST['emails']);
+
+        if (empty($first_name)) $errors[] = "First name is required.";
+        if (empty($last_name))  $errors[] = "Last name is required.";
+        if (empty($emails) || !filter_var($emails, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "A valid email is required.";
+        }
+
+        $data = [
+            'first_name'  => $first_name,
+            'last_name'   => $last_name,
+            'emails'      => $emails,
+            'profile_pic' => $student['profile_pic'] // keep old picture by default
+        ];
+
+        // Handle new upload if provided
+        if (!empty($_FILES['profile_pic']['name'])) {
+            $upload_dir = __DIR__ . '/../../upload/students/';
+            if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+
+            $file_tmp  = $_FILES['profile_pic']['tmp_name'];
+            $file_name = time() . "_" . basename($_FILES['profile_pic']['name']);
+            $target    = $upload_dir . $file_name;
+
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!in_array($_FILES['profile_pic']['type'], $allowed_types)) {
+                $errors[] = "Only JPG, PNG, GIF files are allowed.";
+            } elseif (!move_uploaded_file($file_tmp, $target)) {
+                $errors[] = "❌ Failed to upload file.";
+            } else {
+                // Delete old file
+                if (!empty($student['profile_pic']) && file_exists($upload_dir . $student['profile_pic'])) {
+                    unlink($upload_dir . $student['profile_pic']);
+                }
+                $data['profile_pic'] = $file_name;
+            }
+        }
+
+        // If validation fails → reload form with errors
+        if (!empty($errors)) {
+            $this->call->view('/update', ['student' => $student, 'errors' => $errors]);
+            return;
+        }
+
+        $this->StudentsModel->update($id, $data);
+        redirect('get_all');
+    }
+
+    $this->call->view('/update', ['student' => $student]);
+}
+
+
+    function delete($id) {
+         $this->StudentsModel->delete($id);
+         redirect('get_all');
+    }
+
+public function search()
+{
+    $keyword = $_GET['keyword'] ?? '';
+
+    // call StudentsModel instead of writing SQL here
+    $results = $this->StudentsModel->searchStudents($keyword);
+
+    if (!empty($results)) {
+        foreach ($results as $row) {
+            echo '<tr style="background: rgba(255,255,255,0.12); border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">';
+
+            // Profile picture
+            echo '<td style="padding: 14px; text-align:center;">';
+            if (!empty($row['profile_pic'])) {
+                echo '<img src="/upload/students/' . htmlspecialchars($row['profile_pic']) . '" 
+                          alt="Profile" width="60" height="60" style="border-radius:50%; border:2px solid rgba(255,215,0,0.3);">';
+            } else {
+                echo '<img src="/upload/default.png" 
+                          alt="No Profile" width="60" height="60" style="border-radius:50%; border:2px solid rgba(255,215,0,0.3);">';
+            }
+            echo '</td>';
+
+            echo '<td style="text-align:center; font-weight:600; color:#ffd700;">' . htmlspecialchars($row['id']) . '</td>';
+            echo '<td style="text-align:center; color:#fff;">' . htmlspecialchars($row['first_name']) . '</td>';
+            echo '<td style="text-align:center; color:#fff;">' . htmlspecialchars($row['last_name']) . '</td>';
+            echo '<td style="text-align:center; color:#fff;">' . htmlspecialchars($row['emails']) . '</td>';
+
+            // Action buttons
+            echo '<td style="text-align:center;">';
+            echo '<a href="' . site_url('/update/'.$row['id']) . '" 
+                     class="btn update" style="background:#6c63ff; padding:6px 14px; border-radius:8px; color:#fff; text-decoration:none; margin:2px;"> Update</a>';
+            echo '<a href="' . site_url('/delete/'.$row['id']) . '" 
+                     class="btn delete" 
+                     style="background:#ff6b6b; padding:6px 14px; border-radius:8px; color:#fff; text-decoration:none; margin:2px;"
+                     onclick="return confirm(\'Are you sure you want to delete this record?\');"> Delete</a>';
+            echo '</td>';
+
+            echo '</tr>';
+        }
+    } else {
+        echo '<tr>
+                <td colspan="6" style="text-align:center; padding:14px; color:#ffd700;">
+                    No results found
+                </td>
+              </tr>';
+    }
+}
+
+
+public function login() {
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+
+        // Get user from DB
+        $user = $this->StudentsModel->findByUsername($username);
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            redirect('get_all'); // go to students page
+        } else {
+            $this->call->view('login', ['error' => 'Invalid username or password']);
+            return;
+        }
+    }
+
+    $this->call->view('login');
+}
+
+public function logout() {
+    redirect('login');
+}
+
+public function register() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+        $confirm  = trim($_POST['confirm_password']);
+
+        // Basic validation
+        if (empty($username) || empty($password)) {
+            $this->call->view('register', ['error' => '❌ All fields are required']);
+            return;
+        }
+        if ($password !== $confirm) {
+            $this->call->view('register', ['error' => '❌ Passwords do not match']);
+            return;
+        }
+
+        // Hash the password
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Save into DB
+        $this->StudentsModel->insert1([
+            'username' => $username,
+            'password' => $hashed
+        ]);
+
+        // Redirect to login
+        redirect('login');
+    }
+
+    $this->call->view('register');
+}
+
 }
