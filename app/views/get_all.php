@@ -172,7 +172,7 @@
         <td><?= $students['id']; ?></td>
         <td><?= $students['first_name']; ?></td>
         <td><?= $students['last_name']; ?></td>
-        <td><?= $students['email']; ?></td>
+        <td><?= $students['emails']; ?></td>
         <td>
           <a href="<?= site_url('/update/'.$students['id']); ?>">Update</a> | 
           <a href="<?= site_url('/delete/'.$students['id']); ?>" onclick="return confirm('Are you sure you want to delete this record?');">Delete</a>
