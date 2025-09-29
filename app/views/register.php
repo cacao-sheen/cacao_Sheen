@@ -1,152 +1,126 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register</title>
+
   <style>
-    /* Base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', Arial, sans-serif;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
     body {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      font-family: 'Fredoka One', cursive, sans-serif;
+      background: url('https://wallpaperaccess.com/full/1543982.jpg') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      color: #fff;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 40px;
     }
 
-    /* Floating particles */
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 215, 0, 0.08);
-      animation: float 15s infinite ease-in-out;
-    }
-    .particle:nth-child(1) { width: 100px; height: 100px; top: 10%; left: 15%; }
-    .particle:nth-child(2) { width: 150px; height: 150px; bottom: 15%; right: 20%; }
-    .particle:nth-child(3) { width: 80px; height: 80px; top: 50%; right: 10%; }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(25px); }
-    }
-
-    /* Container */
-    .register-container {
-      position: relative;
-      max-width: 450px;
-      width: 100%;
-      padding: 50px 40px;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
+    .register-box {
+      background: #fff;
+      border: 4px solid #000;
       border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-    }
-
-    h2 {
-      font-size: 26px;
-      color: #ffd700;
+      box-shadow: 8px 8px 0px #000;
+      width: 400px;
+      padding: 35px 30px;
       text-align: center;
-      margin-bottom: 10px;
+      position: relative;
     }
 
-    .underline {
-      width: 60px;
-      height: 3px;
-      background: #ffd700;
-      margin: 0 auto 25px;
-      border-radius: 2px;
+    .register-box::before {
+      content: "+  Create Account  +";
+      font-size: 18px;
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 6px 18px;
+      border-radius: 12px;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      color: #000;
+    }
+
+    .register-box h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #000;
     }
 
     label {
-      font-size: 14px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.9);
       display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
+      text-align: left;
+      font-size: 14px;
+      margin: 10px 0 5px 3px;
+      color: #000;
     }
 
-    input {
+    .register-box input {
       width: 100%;
-      padding: 14px 16px;
-      border: none;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      font-size: 15px;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-family: 'Fredoka One', cursive, sans-serif;
+      font-size: 14px;
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .register-box input:focus {
       outline: none;
-      transition: all 0.3s;
-    }
-    input::placeholder {
-      color: rgba(255,255,255,0.7);
-    }
-    input:focus {
-      background: rgba(255,255,255,0.25);
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      border-color: #f4d03f;
+      background-color: #fef9e7;
     }
 
-    button {
+    .register-box button {
       width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      background: linear-gradient(135deg, #ffd700, #ffa500);
-      color: #1e1e1e;
+      padding: 12px 15px;
+      margin-top: 10px;
+      background: #000;
+      color: #fff;
       font-size: 16px;
-      font-weight: 700;
-      border: none;
-      border-radius: 10px;
+      border: 2px solid #000;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    button:hover {
-      background: linear-gradient(135deg, #ffbf00, #e69500);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(255, 215, 0, 0.3);
+      box-shadow: 4px 4px 0px #000;
+      transition: 0.3s;
     }
 
-    .error {
-      color: #ff6b6b;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 14px;
+    .register-box button:hover {
+      background: #f4d03f;
+      color: #000;
+      transform: scale(1.05);
     }
 
-    p {
-      text-align: center;
-      margin-top: 20px;
+    .register-box p {
+      margin-top: 15px;
       font-size: 14px;
-      color: rgba(255,255,255,0.8);
+      color: #000;
     }
-    p a {
-      color: #ffd700;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    p a:hover {
+
+    .register-box a {
+      color: #000;
       text-decoration: underline;
     }
 
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Background particles -->
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-
-  <div class="register-container">
+  <div class="register-box">
     <form method="POST" action="/index.php/register">
       <h2>Create Account</h2>
-      <div class="underline"></div>
 
       <?php if (!empty($error)): ?>
         <p class="error"><?= $error ?></p>
@@ -169,3 +143,4 @@
 
 </body>
 </html>
+```
