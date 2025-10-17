@@ -15,67 +15,74 @@ class UserController extends Controller {
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
+        // Check if logged in
         if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true) {
             redirect('user_login');
             exit;
         }
 
+        // ✅ Handle update submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Collect new profile data
-            $first_name = trim($_POST['first_name']);
-            $last_name  = trim($_POST['last_name']);
-            $emails     = trim($_POST['emails']);
-            $password   = trim($_POST['password']);
+            $first_name = trim($this->io->post('first_name'));
+            $last_name  = trim($this->io->post('last_name'));
+            $emails     = trim($this->io->post('emails'));
+            $password   = trim($this->io->post('password'));
             $profile_pic = null;
 
-            // Handle image upload
+            // ✅ Handle profile picture upload
             if (!empty($_FILES['profile_pic']['name'])) {
-                $upload_dir = __DIR__ . '/../../uploads/';
+                $upload_dir = BASEPATH . '../uploads/';
                 if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
                 $file_tmp  = $_FILES['profile_pic']['tmp_name'];
                 $file_name = time() . "_" . basename($_FILES['profile_pic']['name']);
                 $target    = $upload_dir . $file_name;
-                $allowed   = ['image/jpeg', 'image/png', 'image/gif'];
+                $allowed   = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-                if (in_array($_FILES['profile_pic']['type'], $allowed) && move_uploaded_file($file_tmp, $target)) {
-                    $profile_pic = $file_name;
+                if (in_array($_FILES['profile_pic']['type'], $allowed)) {
+                    if (move_uploaded_file($file_tmp, $target)) {
+                        $profile_pic = $file_name;
+                    }
                 }
             }
 
-            // Build data for update
+            // ✅ Build update array
             $data = [
-                'first_name'  => $first_name,
-                'last_name'   => $last_name,
-                'emails'      => $emails,
-                'password'    => $password,
+                'first_name' => $first_name,
+                'last_name'  => $last_name,
+                'emails'     => $emails,
             ];
 
+            // Update password only if entered
+            if (!empty($password)) {
+                $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            // Add new image only if uploaded
             if ($profile_pic) {
                 $data['profile_pic'] = $profile_pic;
             }
 
-            // ✅ Update student info in the students table
+            // ✅ Update the record
             $this->StudentsModel->update($id, $data);
 
             $_SESSION['message'] = "✅ Profile updated successfully!";
             redirect('user_panel');
-        } 
-        else {
-            // ✅ Fetch existing student record (FIXED)
-            $student = $this->StudentsModel->find($id);
-
-            if (!$student) {
-                die("⚠️ No record found for student ID: " . htmlspecialchars($id));
-            }
-
-           $this->call->view('update_user', ['user' => $student]);
-
-
+            exit;
         }
+
+        // ✅ Auto-load existing data for form
+        $user = $this->StudentsModel->find($id);
+
+        if (!$user) {
+            die("⚠️ No record found for student ID: " . htmlspecialchars($id));
+        }
+
+        // Pass the user data to the update view
+        $this->call->view('update_user', ['user' => $user]);
     }
 
-    // Optional — Student dashboard view (redirects to StudentsController)
+    // ✅ Optional — Student dashboard view
     public function user_panel()
     {
         redirect('user_panel');
