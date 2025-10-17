@@ -1,198 +1,74 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header("Location: " . site_url('login'));
+    exit;
+}
 
+// ensure $student is set and is an array
+$student = $student ?? [];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Student</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
-    body {
-      font-family: 'Fredoka One', cursive, sans-serif;
-      background: url('https://wallpaperaccess.com/full/1543982.jpg') no-repeat center center fixed;
-      background-size: cover;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 60px 20px;
-      color: #000;
+<meta charset="utf-8">
+<title>✏️ Update Student</title>
+<style>
+    body { font-family:'Poppins',sans-serif; background:#f0f6ff; margin:0; padding:40px; }
+    .card { max-width:600px; margin:0 auto; background:#fff; padding:26px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); }
+    h2 { text-align:center; margin-bottom:18px; }
+    label { display:block; margin:10px 0 6px; font-weight:700; }
+    input[type="text"], input[type="email"], input[type="file"] {
+        width:100%; padding:10px 12px; border-radius:10px; border:1px solid #ccc; box-sizing:border-box;
     }
-
-    /* ===== Card Container ===== */
-    .form-card {
-      background: #fff;
-      border: 4px solid #000000;
-      border-radius: 20px;
-      padding: 30px 40px;
-      width: 420px;
-      box-shadow: 8px 8px 0px #000000;
-      position: relative;
-    }
-
-    .form-card::before {
-      content: "+ Update Student +";
-      font-size: 20px;
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #ffffff;
-      padding: 6px 18px;
-      color: #000000;
-      border-radius: 12px;
-      border: 3px solid #000000;
-      box-shadow: 4px 4px 0px #000000;
-    }
-
-    h2 {
-      text-align: center;
-      font-size: 22px;
-      margin-bottom: 20px;
-      color: #000;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      color: #000;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="file"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 2px solid #000000;
-      border-radius: 12px;
-      font-size: 14px;
-      outline: none;
-      font-family: 'Fredoka One', cursive, sans-serif;
-      box-shadow: 4px 4px 0px #000000;
-      background: #fef9e7;
-    }
-
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="file"]:focus {
-      background: #fff9c4;
-      border-color: #f4d03f;
-    }
-
-    input[type="submit"] {
-      width: 100%;
-      padding: 12px;
-      background-color: #000000;
-      color: #ffffff;
-      font-size: 16px;
-      border: 2px solid #000000;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 4px 4px 0px #000000;
-    }
-
-    input[type="submit"]:hover {
-      background-color: #f4d03f;
-      color: #000;
-      transform: scale(1.05);
-    }
-
-    /* Error box */
-    .error {
-      background: #ffcccc;
-      border: 2px solid #000;
-      border-radius: 12px;
-      padding: 10px 15px;
-      margin-bottom: 15px;
-      box-shadow: 4px 4px 0px #000000;
-      color: #000;
-    }
-    .error ul { margin: 0; padding-left: 20px; }
-
-    /* Profile preview */
-    .profile-preview {
-      text-align: center;
-      margin: 15px 0;
-    }
-    .profile-preview img {
-      border-radius: 50%;
-      border: 3px solid #000;
-      width: 80px;
-      height: 80px;
-      box-shadow: 4px 4px 0px #000000;
-    }
-    .profile-preview p {
-      color: #000;
-      font-size: 14px;
-      margin-top: 6px;
-    }
-
-    /* Back button */
-    .back-link {
-      display: inline-block;
-      margin-top: 15px;
-      background: #000000;
-      color: #fff;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: 2px solid #000000;
-      transition: 0.3s;
-      box-shadow: 4px 4px 0px #000000;
-    }
-
-    .back-link:hover {
-      background: #f4d03f;
-      color: #000;
-      transform: scale(1.05);
-    }
-  </style>
+    .profile-preview { text-align:center; margin:18px 0; }
+    .profile-preview img { width:120px; height:120px; border-radius:50%; border:3px solid #333; object-fit:cover; }
+    .actions { text-align:center; margin-top:18px; }
+    .btn { background:#222; color:#fff; padding:10px 18px; border-radius:10px; text-decoration:none; display:inline-block; }
+    .btn.delete { background:#e74c3c; margin-left:10px; }
+</style>
 </head>
 <body>
+<div class="card">
+    <h2>✏️ Update Student</h2>
 
-  <div class="form-card">
-    <?php if (!empty($errors)): ?>
-      <div class="error">
-        <ul>
-          <?php foreach ($errors as $e): ?>
-            <li><?= htmlspecialchars($e) ?></li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
+    <?php if (empty($student) || !isset($student['id'])): ?>
+        <p style="color:#c00; font-weight:700; text-align:center;">Student record not found.</p>
+    <?php else: ?>
+        <?php
+            $id = (int)$student['id'];
+            // determine profile URL
+            $profile_url = site_url('assets/default.png');
+            if (!empty($student['profile_pic'])) {
+                $physical = __DIR__ . '/../../uploads/' . $student['profile_pic'];
+                if (file_exists($physical)) $profile_url = site_url('uploads/' . rawurlencode($student['profile_pic']));
+            }
+        ?>
+
+        <form action="<?= site_url('update/' . $id) ?>" method="POST" enctype="multipart/form-data">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" value="<?= htmlspecialchars($student['first_name'] ?? '') ?>">
+
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($student['last_name'] ?? '') ?>">
+
+            <label for="emails">Email</label>
+            <input type="email" id="emails" name="emails" value="<?= htmlspecialchars($student['emails'] ?? '') ?>">
+
+            <div class="profile-preview">
+                <p style="margin:0 0 8px; font-weight:700;">Current Profile Picture</p>
+                <img src="<?= $profile_url ?>" alt="Profile Preview">
+            </div>
+
+            <label for="profile_pic">Change Profile Picture</label>
+            <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
+
+            <div class="actions">
+                <button type="submit" class="btn">Update</button>
+                <a href="<?= site_url('get_all') ?>" class="btn delete" style="background:#777;">Back</a>
+            </div>
+        </form>
     <?php endif; ?>
-
-    <form action="<?=site_url('/update/'.segment(3));?>" method="POST" enctype="multipart/form-data">
-      <label for="first_name">First Name</label>
-      <input type="text" id="first_name" name="first_name" value="<?=$student['first_name'];?>" placeholder="Enter first name">
-
-      <label for="last_name">Last Name</label>
-      <input type="text" id="last_name" name="last_name" value="<?=$student['last_name'];?>" placeholder="Enter last name">
-
-      <label for="emails">Email</label>
-      <input type="email" id="emails" name="emails" value="<?=$student['emails'];?>" placeholder="you@example.com">
-
-      <!-- Current Profile Picture -->
-      <?php if (!empty($student['profile_pic'])): ?>
-        <div class="profile-preview">
-          <img src="/upload/students/<?=$student['profile_pic'];?>" alt="Current Profile">
-          <p>Current Profile Picture</p>
-        </div>
-      <?php endif; ?>
-
-      <label for="profile_pic">Change Profile Picture</label>
-      <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
-
-      <input type="submit" value="Update">
-
-      <div style="text-align:center;">
-        <a class="back-link" href="<?=site_url('get_all')?>">← Back to Students</a>
-      </div>
-    </form>
-  </div>
-
+</div>
 </body>
 </html>

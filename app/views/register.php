@@ -1,146 +1,191 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register Account 🌸</title>
+<style>
+  body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #fff8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+  .cat {
+    position: absolute;
+    font-size: 40px;
+    opacity: 0.8;
+    animation: floatUp 15s linear infinite;
+    pointer-events: none;
+  }
 
-    body {
-      font-family: 'Fredoka One', cursive, sans-serif;
-      background: url('https://wallpaperaccess.com/full/1543982.jpg') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 40px;
-    }
+  @keyframes floatUp {
+    from { transform: translateY(100vh) rotate(0deg); opacity: 0.8; }
+    to { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
 
-    .register-box {
-      background: #fff;
-      border: 4px solid #000;
-      border-radius: 20px;
-      box-shadow: 8px 8px 0px #000;
-      width: 400px;
-      padding: 35px 30px;
-      text-align: center;
-      position: relative;
-    }
+  form {
+    background-color: #fff0f5;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    width: 350px;
+    position: relative;
+    z-index: 10;
+    animation: popIn 0.8s ease;
+  }
 
-    .register-box::before {
-      content: "+  Create Account  +";
-      font-size: 18px;
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      padding: 6px 18px;
-      border-radius: 12px;
-      border: 3px solid #000;
-      box-shadow: 3px 3px 0px #000;
-      color: #000;
-    }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
 
-    .register-box h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      color: #000;
-    }
+  h2 {
+    text-align: center;
+    color: #ff69b4;
+    margin-bottom: 20px;
+    animation: bounce 1.5s infinite;
+  }
 
-    label {
-      display: block;
-      text-align: left;
-      font-size: 14px;
-      margin: 10px 0 5px 3px;
-      color: #000;
-    }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
 
-    .register-box input {
-      width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 12px;
-      border: 2px solid #000;
-      border-radius: 12px;
-      font-family: 'Fredoka One', cursive, sans-serif;
-      font-size: 14px;
-      box-shadow: 4px 4px 0px #000;
-    }
+  .cat-row {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
 
-    .register-box input:focus {
-      outline: none;
-      border-color: #f4d03f;
-      background-color: #fef9e7;
-    }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ff69b4;
+    font-weight: bold;
+  }
 
-    .register-box button {
-      width: 100%;
-      padding: 12px 15px;
-      margin-top: 10px;
-      background: #000;
-      color: #fff;
-      font-size: 16px;
-      border: 2px solid #000;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 4px 4px 0px #000;
-      transition: 0.3s;
-    }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #ffb6c1;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.3s;
+    background-color: white;
+  }
 
-    .register-box button:hover {
-      background: #f4d03f;
-      color: #000;
-      transform: scale(1.05);
-    }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="file"]:focus {
+    border-color: #ff69b4;
+    background-color: #ffe4e1;
+    box-shadow: 0 0 8px #ffb6c1;
+  }
 
-    .register-box p {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #000;
-    }
+  input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff69b4;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
 
-    .register-box a {
-      color: #000;
-      text-decoration: underline;
-    }
+  input[type="submit"]:hover {
+    background-color: #ff1493;
+    transform: scale(1.05);
+  }
 
-    .error {
-      color: red;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-  </style>
+  .actions {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-block;
+    background-color: #ffe4e1;
+    color: #ff69b4;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .back-link:hover {
+    background-color: #ffb6c1;
+    color: white;
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  }
+
+  .back-link:active {
+    transform: scale(0.95);
+  }
+</style>
 </head>
 <body>
 
-  <div class="register-box">
-    <form method="POST" action="/index.php/register">
-      <h2>Create Account</h2>
+<!-- Floating cats background -->
+<div class="cat" style="left:10%; animation-duration: 12s;">🐱</div>
+<div class="cat" style="left:25%; animation-duration: 18s;">😺</div>
+<div class="cat" style="left:40%; animation-duration: 14s;">😸</div>
+<div class="cat" style="left:60%; animation-duration: 16s;">😹</div>
+<div class="cat" style="left:75%; animation-duration: 20s;">😻</div>
+<div class="cat" style="left:90%; animation-duration: 15s;">😽</div>
 
-      <?php if (!empty($error)): ?>
-        <p class="error"><?= $error ?></p>
-      <?php endif; ?>
+<form action="<?= site_url('/register'); ?>" method="POST" enctype="multipart/form-data">
+  <h2>Register Account 🌸</h2>
 
-      <label>Username</label>
-      <input type="text" name="username" placeholder="Enter username" required>
+  <div class="cat-row">🐱 😺 😸 😹 😻 😽</div>
 
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter password" required>
+  <?php if (!empty($errors)): ?>
+    <div style="color:red; margin-bottom: 15px;">
+      <ul>
+        <?php foreach ($errors as $e): ?>
+          <li><?= htmlspecialchars($e) ?></li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
 
-      <label>Confirm Password</label>
-      <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+  <label for="first_name">First Name</label>
+  <input type="text" id="first_name" name="first_name" placeholder="Your first name" required>
 
-      <button type="submit">Register</button>
+  <label for="last_name">Last Name</label>
+  <input type="text" id="last_name" name="last_name" placeholder="Your last name" required>
 
-      <p>Already have an account? <a href="/index.php/login">Login here</a></p>
-    </form>
+  <label for="emails">Email</label>
+  <input type="email" id="emails" name="emails" placeholder="you@example.com" required>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+  <label for="profile_pic">Profile Picture</label>
+  <input type="file" id="profile_pic" name="profile_pic">
+
+  <input type="submit" value="Register ✨">
+
+  <div class="cat-row">😻 😹 😸 😺 🐱</div>
+
+  <div class="actions">
+    <a class="back-link" href="<?= site_url('user_login') ?>">⬅️ 🐱 Back to Login</a>
   </div>
+</form>
 
 </body>
 </html>
-```

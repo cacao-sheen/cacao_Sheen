@@ -106,4 +106,14 @@ public function findByUsername($username) {
     public function insert($data) {
         return $this->db->table('students')->insert($data);
     }
+
+    public function get_student_by_email($email)
+{
+    $sql = "SELECT * FROM students WHERE emails = ?";
+    $stmt = $this->db->raw($sql, [$email]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $row ?: null; // return single record or null if not found
+}
+
 }
