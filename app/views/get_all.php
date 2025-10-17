@@ -94,25 +94,42 @@ tr:hover {
     border: 2px solid #000;
     object-fit: cover;
 }
+
+/* ✅ New clean Snoopy-style pagination */
 .pagination {
-    text-align: center;
-    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
-.pagination a {
+.pagination a,
+.pagination strong,
+.pagination span {
     display: inline-block;
-    padding: 8px 15px;
-    margin: 0 5px;
+    padding: 8px 14px;
     border: 2px solid #000;
     background: #fff;
     color: #000;
     text-decoration: none;
     border-radius: 10px;
     box-shadow: 3px 3px 0 #000;
+    font-weight: bold;
+    transition: 0.2s;
 }
 .pagination a:hover {
     background: #000;
     color: #fff;
 }
+.pagination strong {
+    background: #000;
+    color: #fff;
+}
+.pagination span {
+    display: none; /* removes the dots (...) */
+}
+
 .footer-snoopy {
     position: fixed;
     bottom: 0;
@@ -175,7 +192,7 @@ tr:hover {
     </table>
 
     <div class="pagination">
-        <?= $pagination_links ?? '' ?>
+        <?= preg_replace('/<span class="dots">.*?<\/span>/', '', $pagination_links ?? '') ?>
     </div>
 </div>
 

@@ -3,70 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register Account 🌸</title>
+<title>🐶 Register Account</title>
 <style>
+  /* Base layout */
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background-color: #fff8f0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, #dff4ff 0%, #ffffff 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     overflow: hidden;
+    margin: 0;
+    position: relative;
   }
 
-  .cat {
+  /* Clouds floating around */
+  .cloud {
     position: absolute;
-    font-size: 40px;
-    opacity: 0.8;
-    animation: floatUp 15s linear infinite;
+    font-size: 48px;
+    opacity: 0.3;
+    animation: floatClouds 25s linear infinite;
     pointer-events: none;
   }
 
-  @keyframes floatUp {
-    from { transform: translateY(100vh) rotate(0deg); opacity: 0.8; }
-    to { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  @keyframes floatClouds {
+    from { transform: translateX(-10vw); opacity: 0.4; }
+    to { transform: translateX(110vw); opacity: 0.2; }
   }
 
+  /* Register form container */
   form {
-    background-color: #fff0f5;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    width: 350px;
+    background-color: #ffffff;
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 8px 25px rgba(135, 206, 250, 0.35);
+    width: 360px;
     position: relative;
     z-index: 10;
-    animation: popIn 0.8s ease;
+    border: 3px solid #bee9ff;
+    animation: fadeIn 0.8s ease;
   }
 
-  @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
+  @keyframes fadeIn {
+    from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
   }
 
+  /* Header */
   h2 {
     text-align: center;
-    color: #ff69b4;
+    color: #3a8fd8;
     margin-bottom: 20px;
-    animation: bounce 1.5s infinite;
+    font-weight: 600;
+    font-size: 22px;
+    text-shadow: 1px 1px #e3f3ff;
   }
 
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
-
-  .cat-row {
+  .snoopy-icon {
     text-align: center;
-    font-size: 20px;
-    margin-bottom: 15px;
+    font-size: 48px;
+    margin-bottom: 10px;
   }
 
+  /* Labels & Inputs */
   label {
     display: block;
-    margin-bottom: 5px;
-    color: #ff69b4;
-    font-weight: bold;
+    margin-bottom: 6px;
+    color: #3a8fd8;
+    font-weight: 600;
+    font-size: 14px;
   }
 
   input[type="text"],
@@ -75,40 +85,51 @@
   input[type="file"] {
     width: 100%;
     padding: 12px;
-    margin-bottom: 20px;
-    border: 2px solid #ffb6c1;
-    border-radius: 10px;
+    margin-bottom: 18px;
+    border: 2px solid #b8e0ff;
+    border-radius: 12px;
     outline: none;
-    transition: 0.3s;
-    background-color: white;
+    font-size: 15px;
+    background-color: #f8fcff;
+    transition: 0.3s ease;
   }
 
-  input[type="text"]:focus,
-  input[type="email"]:focus,
-  input[type="password"]:focus,
-  input[type="file"]:focus {
-    border-color: #ff69b4;
-    background-color: #ffe4e1;
-    box-shadow: 0 0 8px #ffb6c1;
+  input:focus {
+    border-color: #6cbcff;
+    box-shadow: 0 0 8px rgba(108,188,255,0.4);
   }
 
+  /* Submit button */
   input[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #ff69b4;
-    border: none;
-    border-radius: 10px;
+    background: linear-gradient(90deg, #6cbcff, #3a8fd8);
     color: white;
-    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s ease;
   }
 
   input[type="submit"]:hover {
-    background-color: #ff1493;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(108,188,255,0.5);
   }
 
+  /* Error messages */
+  .errors {
+    color: #d33;
+    margin-bottom: 15px;
+    background: #ffeaea;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    list-style-type: none;
+  }
+
+  /* Back link */
   .actions {
     margin-top: 20px;
     text-align: center;
@@ -116,51 +137,42 @@
 
   .back-link {
     display: inline-block;
-    background-color: #ffe4e1;
-    color: #ff69b4;
-    font-weight: bold;
+    background: #e3f5ff;
+    color: #3a8fd8;
+    font-weight: 600;
     text-decoration: none;
     padding: 10px 18px;
     border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transition: all 0.3s ease-in-out;
+    transition: 0.3s;
+    border: 2px solid #b8e0ff;
   }
 
   .back-link:hover {
-    background-color: #ffb6c1;
+    background: #6cbcff;
     color: white;
-    transform: scale(1.05) rotate(-2deg);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-  }
-
-  .back-link:active {
-    transform: scale(0.95);
+    transform: scale(1.05);
+    box-shadow: 0 5px 12px rgba(108,188,255,0.4);
   }
 </style>
 </head>
 <body>
 
-<!-- Floating cats background -->
-<div class="cat" style="left:10%; animation-duration: 12s;">🐱</div>
-<div class="cat" style="left:25%; animation-duration: 18s;">😺</div>
-<div class="cat" style="left:40%; animation-duration: 14s;">😸</div>
-<div class="cat" style="left:60%; animation-duration: 16s;">😹</div>
-<div class="cat" style="left:75%; animation-duration: 20s;">😻</div>
-<div class="cat" style="left:90%; animation-duration: 15s;">😽</div>
+<!-- Floating clouds background -->
+<div class="cloud" style="top:10%; left:5%; animation-duration: 22s;">☁️</div>
+<div class="cloud" style="top:25%; left:80%; animation-duration: 18s;">☁️</div>
+<div class="cloud" style="top:55%; left:30%; animation-duration: 26s;">☁️</div>
+<div class="cloud" style="top:75%; left:70%; animation-duration: 20s;">☁️</div>
 
 <form action="<?= site_url('/register'); ?>" method="POST" enctype="multipart/form-data">
-  <h2>Register Account 🌸</h2>
-
-  <div class="cat-row">🐱 😺 😸 😹 😻 😽</div>
+  <div class="snoopy-icon"></div>
+  <h2>Register Account</h2>
 
   <?php if (!empty($errors)): ?>
-    <div style="color:red; margin-bottom: 15px;">
-      <ul>
-        <?php foreach ($errors as $e): ?>
-          <li><?= htmlspecialchars($e) ?></li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
+    <ul class="errors">
+      <?php foreach ($errors as $e): ?>
+        <li><?= htmlspecialchars($e) ?></li>
+      <?php endforeach; ?>
+    </ul>
   <?php endif; ?>
 
   <label for="first_name">First Name</label>
@@ -178,12 +190,10 @@
   <label for="profile_pic">Profile Picture</label>
   <input type="file" id="profile_pic" name="profile_pic">
 
-  <input type="submit" value="Register ✨">
-
-  <div class="cat-row">😻 😹 😸 😺 🐱</div>
+  <input type="submit" value="Register 🩵">
 
   <div class="actions">
-    <a class="back-link" href="<?= site_url('user_login') ?>">⬅️ 🐱 Back to Login</a>
+    <a class="back-link" href="<?= site_url('user_login') ?>">⬅️ Back to Login</a>
   </div>
 </form>
 
